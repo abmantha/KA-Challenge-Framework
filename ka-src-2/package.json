@@ -1,0 +1,21 @@
+{
+  "name": "KA-Challenge-Framework",
+  "version": "1.0.0",
+  "description": "Khan Academy Challenge Framework Prototype",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "echo \"Bundling, please wait...\" && npm run build && npm run server",
+    "build": "browserify -d -t [ babelify --presets [ react ] ] client/index/app.js -o public/js/bundle.js",
+    "server": "nodemon ./bin/www"
+  },
+  "author": "Abhishek Mantha",
+  "license": "ISC",
+  "dependencies": {
+    "babel-preset-react": "^6.3.13",
+    "babelify": "^7.2.0",
+    "esprima": "2.7.1",
+    "express": "^4.13.4",
+    "ejs": "~2.3.4"
+  }
+}
