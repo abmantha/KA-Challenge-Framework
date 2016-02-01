@@ -1,8 +1,7 @@
 var React = require('react');
-var TextEditor = require('./components/TextEditor.jsx');
-var KATest = require('./testing-utils/ka-tester');
+var ChallengeFramework = require('./components/ChallengeFramework.jsx');
 
 ReactDOM.render(
-  <TextEditor />,
+  <ChallengeFramework />,
   document.getElementById('render-target')
 );
