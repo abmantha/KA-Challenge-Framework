@@ -2,7 +2,11 @@
   "name": "KA-Challenge-Framework",
   "version": "1.0.0",
   "description": "Khan Academy Challenge Framework Prototype",
-  "main": "index.js",
+  "main": "app.js",
+  "engines": {
+    "node": "4.1.1",
+    "npm": "3.3.5"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "echo \"Bundling, please wait...\" && npm run build && npm run server",
@@ -18,7 +22,6 @@
     "esprima": "2.7.1",
     "express": "^4.13.4",
     "react": "^0.14.7",
-    "react-codemirror": "^0.2.5",
     "react-dom": "^0.14.7"
   }
 }
