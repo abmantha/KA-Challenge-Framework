@@ -1,6 +1,6 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
-var ChallengeFramework = require('./components/ChallengeFramework.jsx');
+var ChallengeFramework = require('./ChallengeFramework.jsx');
 
 React.render(
   <ChallengeFramework />,
