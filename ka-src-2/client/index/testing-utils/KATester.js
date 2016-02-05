@@ -3,120 +3,105 @@ var esprima = require('esprima');
 var _ = require('underscore');
 
 var KATester = (function() {
-  // code = string
-  // requirements = array of syntax types ({ Type: functional component objects, Frequency: })
-  // 0 - whitelist; 1 - blacklist
-  // mustContain = true (whitelist), = false (blacklist)
-  matchRequirements = function( code, requirementString, mustContain ) {
-    console.log( "Calling mustHave from KATester module" );
-    console.log( "Code: " + code );
-    console.log( "Requirement String: " + requirementString );
 
-    /* Generate the program's AST */
-    var programAST = esprima.parse( code );
-    console.log( "ProgramAST: " + JSON.stringify( programAST, null, 4 ) );
+  // must explicitly define the structure
+  check = function( code, whiteList, blackList, structure ) {
 
-    var syntaxString = generateSyntaxString( programAST, "" );
+    var codeAST = esprima.parse( code );
+    var syntaxString = generateSyntaxString( codeAST, "" );
 
-    console.log( "Syntax String: " + syntaxString );
+    /* ENHANCE THIS FOR REGEX PARSING CAPABILITY! */
+
+    // return a code object with results
+    var whiteListStructure = whiteList.split("&&");
+    console.log( "White List Requirement Structure: " + whiteListStructure );
+    var passedWhiteList = true;
+    for ( var i = 0; i < whiteListStructure.length; i++ ) {
+      var req = whiteListStructure[i];
+      console.log( "White List requirement: " + req );
+      if ( syntaxString.indexOf(req) === -1 ) {
+        passedWhiteList = false;
+        break;
+      }
+    }
+    console.log( "Whitelist results: " + passedWhiteList );
+
+    var blackListStructure = blackList.split( "&&" );
+    console.log( "Black List Requirement Structure: " + blackListStructure );
+    var passedBlackList = true;
+    for ( var i = 0; i < blackListStructure.length; i++ ) {
+      var req = blackListStructure[i];
+      console.log( "Black List requirement: " + req );
+      if ( syntaxString.indexOf(req) !== -1 ) {
+        passedBlackList = false;
+        break;
+      }
+    }
+    console.log( "Blacklist results: " + passedBlackList );
+
+    var structureTest = syntaxString.indexOf(structure);
+    var passedStructureTest = true;
+    if ( structureTest == -1 ) {
+      passedStructureTest = false;
+    }
+
+    return {
+      passedWhiteList: passedWhiteList,
+      passedBlackList: passedBlackList,
+      passedStructureTest: passedStructureTest
+    };
+    
   }
 
   // Syntax String structure
-    // ! = start of block statement
-    // : = start of body elements
-    // | = sibling
-    // . = end of body elements and block statement
+    // [] - represents a single node
+    // | - separates sibling nodes
 
-  // Currently supports: 
-    // WhileStatement
-    // ForStatement
-    // ExpressionStatement
-    // FunctionDeclaration
-    // VariableDeclaration
-
+  /* DOES SUPPORT */
   /* 
-    traverseAST = function( astNode, callback ) {
-      callback(astNode.type);
-      _.each( astNode, function(childNode) {
-        if ( typeof childNode === 'object' && childNode !== null ) {
-          if ( Array.isArray(childNode) ) {
-            _.each(childNode, function(c) {
-              traverseAST(c, callback);
-            });
-          } else {  
-            traverseAST(childNode, callback);
-          }
-        }
-      });
-    }
-  */  
+    1. IfStatement
+    2. WhileStatement
+    3. ForStatement
+    4. ForInStatement
+    5. DoWhileStatement
+    6. FunctionDeclaration
+    7. VariableDeclaration
+    8. Expressions
+  */
+/* EXTEND TO MAINTAIN MORE CODING STRUCTURE */
   generateSyntaxString = function( astNode, syntaxString ) {
-
     var nodeType = astNode.type;
-    console.log( "Node type: " + nodeType );
-
-    if ( Array.isArray(astNode.body) && nodeType === "Program" ) {  // program or block statement
-      for ( var i = 0; i < astNode.body.length; i++ ) {
-        syntaxString = generateSyntaxString( astNode.body[i], syntaxString );
-        if ( i != astNode.body.length-1 ) {
-           syntaxString += "|";
-        }
-      }
-    } else if ( nodeType === "WhileStatement" || nodeType === "ForStatement" || nodeType === "FunctionDeclaration" ) {  // if ( typeof astNode.body === 'object' && astNode !== null ) { // while or for statement or function declaration
-      syntaxString += nodeType + ":";
-      var nodeBody = astNode.body.body;
-      for ( var i = 0; i < nodeBody.length; i++ ) {
-        syntaxString = generateSyntaxString( nodeBody[i], syntaxString );
-        if ( i != nodeBody.length -1 ) {
-          syntaxString += ",";
-        }
-      }
-    } else if ( nodeType === "IfStatement" ) {
-      syntaxString += nodeType + ":";
-      var nodeBody = astNode.consequent.body;
-      for ( var i = 0; i < nodeBody.length; i++ ) {
-        syntaxString = generateSyntaxString( nodeBody[i], syntaxString );
-        if ( i != nodeBody.length -1 ) {
-          syntaxString += ",";
-        }
+    if ( astNode.body != undefined || astNode.consequent != undefined ) {
+      syntaxString += nodeType + "[";
+      var nodeChildren;
+      if ( nodeType === "Program" ) {
+        nodeChildren = astNode.body;
+      } else if ( nodeType === "IfStatement" ) {
+        nodeChildren = astNode.consequent.body;
+      } else {
+        nodeChildren = astNode.body.body;
       }
 
-    } else if ( nodeType === "ExpressionStatement" || nodeType === "VariableDeclaration" ) {
+      for ( var i = 0; i < nodeChildren.length; i++ ) {
+        syntaxString = generateSyntaxString( nodeChildren[i], syntaxString );
+        if ( i != nodeChildren.length - 1 ) {
+          syntaxString += "|";
+        }
+      } 
+      syntaxString += "]";
+    } else if ( nodeType === "ExpressionStatement" ) { // Node is an expression statement, include it's type
+      syntaxString += astNode.expression.type;  
+    } else if ( nodeType === "VariableDeclaration" ) {  // Iterate over its declarations and their children
       syntaxString += nodeType;
     }
+    
     return syntaxString;
-
-    // if ( typeof node === 'object' && node != null ) {
-    //   var nodeType = node.type;
-    //   console.log( "Node type: " + nodeType );
-    //   if ( nodeType === "ForStatement" || nodeType === "WhileStatement" || nodeType === "FunctionDeclaration" ) {
-    //     syntaxString += nodeType + ":";
-    //     var childrenInBody = node.body.body;
-    //     if ( childrenInBody.length > 0 ) {  // contains children
-    //       _.each(childrenInBody, function(child) {
-    //         return generateSyntaxString( child, syntaxString ) + "|";
-    //       });
-    //     }
-    //     syntaxString += ".";
-    //   } else if ( nodeType === "IfStatement" ) {
-    //     syntaxString += nodeType + ":";
-    //     var childrenInBody = node.consequent.body;
-    //     if ( childrenInBody.length > 0 ) {
-    //       _.each(childrenInBody, function(child) {
-    //         return generateSyntaxString( child, syntaxString ) + "|";
-    //       });
-    //     }
-    //     syntaxString += ".";
-    //   } else if ( nodeType === "ExpressionStatement" || nodeType === "VariableDeclaration" ) {
-    //     return syntaxString += nodeType;
-    //   }
-    // }
-    // return syntaxString;
   }
 
   return {
-    matchRequirements: matchRequirements  
+    check: check
   };
+
 }());
 
 module.exports = KATester;
@@ -192,93 +177,4 @@ switch (id.length) {
   default:
       return false;
   }
-*/
-
-
-/* Testing API Information: 
-    Main Structures - TODO: Have time to handle all functionality later on
-        WhileStatement
-        {
-          type: WhileStatement,
-          body: {
-            type: BlockStatement,
-            body: []
-          }
-        }
-        
-        ForStatement
-        {
-          type: ForStatement,
-          init: {},
-          test: {},
-          update: {},
-          body: {
-            type: BlockStatement,
-            body: []
-          }
-        }
-
-        IfStatement
-        {
-          type: IfStatement
-          consequent: {
-            type: BlockStatement,
-            body: []
-          }
-        }
-
-        ExpressionStatement
-        {
-          type: ExpressionStatement,
-          expression: {
-            // CallExpression, FunctionExpression, etc.
-          }
-        }
-
-        VariableDeclaration
-        {
-          type: VariableDeclaration,
-          declarations: [
-            type: VariableDeclarator,
-            id: {},
-            init: {
-              type: FunctionExpression,
-              id: {},
-              body: {
-                type: BlockStatement,
-                body: []
-              },
-              generator: boolean,
-              expression: boolean
-            }
-          ]
-        }
-
-        FunctionDeclaration
-        {
-          type: FunctionDeclaration,
-          id: {
-            type: Identifier,
-            name: 
-          },
-          params: [],
-          defaults: [],
-          body {
-            type: BlockStatement,
-            body: []
-          },
-          generator: boolean,
-          expression: boolean
-        }
-
-  =======================================================
-
-    ESTree Hierarchy
-
-      Statement
-        ExpressionStatement
-          type, expression --> type, value
-
-        BlockStatement
-          type, body
 */
