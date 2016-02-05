@@ -1,5 +1,5 @@
 # KA-Challenge-Framework
-This my Khan Academy JavaScript roject source code.
+This my Khan Academy JavaScript project source code.
 
 ### Running
     git clone https://github.com/abmantha/KA-Challenge-Framework.git
@@ -40,13 +40,13 @@ generates:
 
     ForStatement[IfStatement[CallExpression]|CallExpression]
     
-To determine if a syntax string then matches white list and black list requirements, it's as simple as looking every requirement and finding it's indexOf position within the syntax string. For white list functionality, if any requirement returns an index of -1, then we know that this code fails. For black list functionality, if any requirement returns an index of -1, then we know that this code fails. Multiple requirements can be separated by a '&&' delimeter. 
+To determine if a syntax string then matches white list and black list requirements, it's as simple as looking every requirement and finding it's indexOf position within the syntax string. For white list functionality, if any requirement returns an index of -1, then we know that this code fails. For black list functionality, if any requirement returns an index of -1, then we know that this code fails. Multiple requirements can be separated by a '&&' delimeter. Please note that to represent ForStatements, WhileStatements, IfStatements, FunctionDeclarations, and the like, you must include both [] brackets, even if their bodies are empty.
 
 To determine the rough structure also involves a similar check, where structures are simply searched for within the syntax string as is. Structures should be able to appear 'roughly' within a given syntax string, meaning searching for a ForStatement containing an IfStatement should return true if a CallExpression or additional structure also exists within the ForStatement block. I hope to develop this functionality soon using RegExp objects. However, I did not have enough time fully implement this check. Right now, parameter structures should appear explicitly the way they are expected to within the code. White list and black list functionality also have nested structure functionality. 
 
 I decided to use ReactJS to render my front-end views as I have recently been developing with ReactJS and have found its simplistic design very easy to use. One major consideration was how to dynamically return test results while a user was inputting new code. Because of Esprima's speed, I was able to store test results in UI state, and update all necessary components that displayed the results on the page accordingly. While user text input in React can be a little cumbersome, I was able to design a simple solution for the purposes of testing my KATester API. 
 
-I tried displaying an Ace Editor React component. I challenged myself to render all front-end components using React. The particular package I was using was https://www.npmjs.com/package/react-ace. With popularity and support, it is used in many peojcts. However, given my time constraints, there was no easy way to accept user input code in a non-blocking way while still dynamically generating test results and maintaining state UI. I resolved to using a simple textarea and simple header tags to display the results. I'm quite sad I didn't get to integrate with the text editor as I'd hoped to, but I want to continue working on this project, and hopefully, I'll be able to release a more complete version. Part of this solution will also require using the Web Workers API or a similar library to handle concurrency within JavaScript. One potential live-editor component to use is https://github.com/joelburget/react-live-editor. 
+I tried displaying an AceEditor React component. The particular package I was using was https://www.npmjs.com/package/react-ace. However, I ran into issues managing concurrency and had to resolve to using a simple textarea and simple header tags to display the results. I want to either design a more powerful React text editor using the Web Workers API (or something similar) or perhaps even fork and modify the Khan/Live-Editor repository to display test results directly using the Oh-Noes! functionality.
 
 The application is running on a local node server, pointed to port 3000. Using ejs, I am rendering views through Express routes. This project is a minified version of the stack that we use for Code the Change. While significantly smaller in scope compared to our projects, we have generated boilerplate for our MNEFR stack. (MongoDB, Node, Express, Flux, and React). No database was used for this project and there was no apparent need for Flux. 
 
@@ -56,3 +56,5 @@ The application is running on a local node server, pointed to port 3000. Using e
 * Enhance the front-end UI.
 * Integrate with the Khan Live Editor component, so that test results can appear in side of Oh-Noes! output messages.
 * Integrate with StructuredJS. My initial solution involved using the Structured library and simply translating string requirements to valid Structured syntax. However, this was my first time interacting with an AST and I wanted the chance to learn more about tree traversals.
+
+Please let me know if you require any clarification for any point throughout the repository. Thank you so much for this opportunity!
