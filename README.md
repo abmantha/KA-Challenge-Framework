@@ -3,7 +3,7 @@ This my Khan Academy JavaScript project source code.
 
 ### Running
     git clone https://github.com/abmantha/KA-Challenge-Framework.git
-    cd src
+    cd KA-Challenge-Framework/src
     npm start
     
 Navigate to localhost:3000 to view the page!
